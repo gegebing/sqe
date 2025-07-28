@@ -72,44 +72,43 @@
         width="150"
       />
       <el-table-column
-        label="工号"
-        align="center"
-        prop="doctorId"
-        width="120"
-      />
-      <el-table-column
         label="姓名"
         align="center"
-        prop="doctorName"
+        prop="applicantName"
         width="120"
       />
-      <el-table-column label="职称" align="center" prop="title" width="120" />
       <el-table-column
-        label="申请高风险诊疗技术操作项目名称"
+        label="职称"
         align="center"
-        prop="projectName"
-        min-width="200"
+        prop="techQualifyCode"
+        width="120"
       />
       <el-table-column
-        label="已完成例数"
+        label="申请高风险诊疗技术项目数量"
         align="center"
-        prop="completedCases"
-        width="120"
+        prop="count"
+        width="200"
+      />
+      <el-table-column
+        label="已完成总例数"
+        align="center"
+        prop="totalNum"
+        width="150"
       >
         <template slot-scope="scope">
-          <span :class="getCompletedCasesClass(scope.row.completedCases)">
-            {{ scope.row.completedCases }}
+          <span :class="getCompletedCasesClass(scope.row.totalNum)">
+            {{ scope.row.totalNum }}
           </span>
         </template>
       </el-table-column>
       <el-table-column
         label="最近一次申请时间"
         align="center"
-        prop="lastApplyTime"
+        prop="createTime"
         width="180"
       >
         <template slot-scope="scope">
-          {{ parseTime(scope.row.lastApplyTime) }}
+          {{ formatDateTime(scope.row.createTime) }}
         </template>
       </el-table-column>
       <el-table-column
@@ -145,7 +144,7 @@
         <el-col :span="21">
           <div class="dialog-title">
             <div class="line"></div>
-            <div class="title">高风险诊疗技术操作资格申请表</div>
+            <div class="title">统计详情</div>
           </div>
         </el-col>
         <el-col :span="3">
@@ -156,15 +155,15 @@
           </div>
         </el-col>
       </el-row>
-      
+
       <!-- 右上角关闭图标 -->
-       <el-button 
-         type="text" 
-         @click="detailDialogVisible = false"
-         class="close-icon"
-       >
-         <i class="el-icon-close"></i>
-       </el-button>
+      <el-button
+        type="text"
+        @click="detailDialogVisible = false"
+        class="close-icon"
+      >
+        <i class="el-icon-close"></i>
+      </el-button>
 
       <div class="information-part" id="printContent" v-if="selectedRecord">
         <div class="title">
@@ -178,27 +177,61 @@
                 <table class="info-table">
                   <tr>
                     <td class="table-title">科室</td>
-                    <td class="table-value">{{ selectedRecord.deptName }}</td>
+                    <td class="table-value">
+                      {{
+                        (getPersonInfo() && getPersonInfo().deptName) ||
+                          selectedRecord.deptName
+                      }}
+                    </td>
                     <td class="table-title">姓名</td>
-                    <td class="table-value">{{ selectedRecord.doctorName }}</td>
+                    <td class="table-value">
+                      {{
+                        (getPersonInfo() && getPersonInfo().name) ||
+                          selectedRecord.doctorName
+                      }}
+                    </td>
                     <td class="table-title">职称</td>
-                    <td class="table-value">{{ selectedRecord.title }}</td>
+                    <td class="table-value">
+                      {{
+                        (getPersonInfo() && getPersonInfo().techQualifyCode) ||
+                          selectedRecord.title
+                      }}
+                    </td>
                   </tr>
                   <tr>
                     <td class="table-title">年龄</td>
-                    <td class="table-value">{{ selectedRecord.age }}</td>
+                    <td class="table-value">
+                      {{
+                        calculateAge(
+                          getPersonInfo() && getPersonInfo().birthDate
+                        ) || selectedRecord.age
+                      }}
+                    </td>
                     <td class="table-title">性别</td>
                     <td class="table-value">
-                      {{ selectedRecord.sex == 1 ? "男" : "女" }}
+                      {{
+                        getPersonInfo() && getPersonInfo().sex == "1"
+                          ? "男"
+                          : "女"
+                      }}
                     </td>
                     <td class="table-title">聘任年月</td>
-                    <td class="table-value">2025年6月</td>
+                    <td class="table-value">
+                      {{
+                        formatDate(getPersonInfo() && getPersonInfo().entryDate)
+                      }}
+                    </td>
                   </tr>
                   <tr>
                     <td class="table-title">申请高风险诊疗技术项目数量</td>
-                    <td class="table-value">2</td>
+                    <td class="table-value">
+                      {{
+                        (getPersonInfo() && getPersonInfo().count) ||
+                          getProjectList().length
+                      }}
+                    </td>
                     <td class="table-title">已完成总例数</td>
-                    <td class="table-value">120</td>
+                    <td class="table-value">{{ getTotalCompletedCases() }}</td>
                     <td class="table-title"></td>
                     <td class="table-value"></td>
                   </tr>
@@ -221,19 +254,29 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td><div class="input-like">内镜下肿瘤切除术</div></td>
-                      <td><div class="input-like">50</div></td>
-                      <td><div class="input-like"></div></td>
-                      <td><div class="input-like"></div></td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td><div class="input-like">视神经管减压术</div></td>
-                      <td><div class="input-like">70</div></td>
-                      <td><div class="input-like"></div></td>
-                      <td><div class="input-like"></div></td>
+                    <tr
+                      v-for="(project, index) in getProjectList()"
+                      :key="project.id"
+                    >
+                      <td>{{ index + 1 }}</td>
+                      <td>
+                        <div class="input-like">{{ project.applyName }}</div>
+                      </td>
+                      <td>
+                        <div class="input-like">
+                          {{ project.applyNum || 0 }}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-like">
+                          {{ formatDateTime(project.applyTime) }}
+                        </div>
+                      </td>
+                      <td>
+                        <div class="input-like">
+                          {{ getApprovalDate(project.id) }}
+                        </div>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -244,61 +287,45 @@
                 <div class="title">审批记录</div>
               </div>
               <div class="bgw">
-                <div class="approval-record-item">
+                <div
+                  class="approval-record-item"
+                  v-for="(approvalList, index) in getApprovalOpList()"
+                  :key="index"
+                >
                   <div class="record-title">
-                    申请高风险诊疗技术项目名称： 内镜下肿瘤切除术
+                    申请高风险诊疗技术项目名称：
+                    {{
+                      getProjectNameByApplyId(
+                        approvalList[0] && approvalList[0].applyId
+                      )
+                    }}
                   </div>
                   <div class="record-subtitle">审批流程：</div>
                   <div
                     class="approval-process"
-                    :style="{ '--step-count': getApprovalSteps().length }"
+                    :style="{ '--step-count': approvalList.length }"
                   >
                     <div
                       class="process-step"
-                      v-for="(step, index) in getApprovalSteps()"
-                      :key="index"
+                      v-for="(step, stepIndex) in approvalList"
+                      :key="step.id"
                     >
                       <div class="step-header">
-                        <div class="step-number">{{ index + 1 }}</div>
+                        <div class="step-number">{{ stepIndex + 1 }}</div>
                       </div>
                       <div class="step-info">
                         <p>
-                          <strong>{{ step.title.split("：")[0] }}：</strong
-                          >{{ step.title.split("：")[1] }}
+                          <strong>{{ step.currentNode }}：</strong
+                          >{{ step.reviewer }}
                         </p>
-                        <p><strong>审批时间：</strong>{{ step.time }}</p>
-                        <p><strong>审批结果：</strong>{{ step.status }}</p>
-                        <p><strong>审核意见：</strong>{{ step.remark }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="approval-record-item">
-                  <div class="record-title">
-                    申请高风险诊疗技术项目名称： 视神经管减压术
-                  </div>
-                  <div class="record-subtitle">审批流程：</div>
-                  <div
-                    class="approval-process"
-                    :style="{ '--step-count': getSecondApprovalSteps().length }"
-                  >
-                    <div
-                      class="process-step"
-                      v-for="(step, index) in getSecondApprovalSteps()"
-                      :key="'second-' + index"
-                    >
-                      <div class="step-header">
-                        <div class="step-number">{{ index + 1 }}</div>
-                      </div>
-                      <div class="step-info">
                         <p>
-                          <strong>{{ step.title.split("：")[0] }}：</strong
-                          >{{ step.title.split("：")[1] }}
+                          <strong>审批时间：</strong
+                          >{{ formatDateTime(step.createTime) }}
                         </p>
-                        <p><strong>审批时间：</strong>{{ step.time }}</p>
                         <p><strong>审批结果：</strong>{{ step.status }}</p>
-                        <p><strong>审核意见：</strong>{{ step.remark }}</p>
+                        <p>
+                          <strong>审核意见：</strong>{{ step.comment || "无" }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -313,8 +340,14 @@
 </template>
 
 <script>
+import {
+  exportStatisticsExcel,
+  getStatisticsDetail,
+  getStatisticsList
+} from "@/api/highrisk";
 import { deptList } from "@/api/operQualify";
 import Pagination from "@/components/Pagination";
+import { download } from "@/plugins/download";
 import { parseTime } from "@/utils/index";
 
 /**
@@ -398,10 +431,24 @@ export default {
     async getList() {
       this.loading = true;
       try {
-        // 模拟数据，实际应该调用后端API
-        const mockData = this.generateMockData();
-        this.statisticsList = mockData.list;
-        this.total = mockData.total;
+        const response = await getStatisticsList({
+          pageNum: this.queryParams.pageNum,
+          pageSize: this.queryParams.pageSize,
+          doctorId: this.queryParams.doctorId,
+          deptId: this.queryParams.deptId
+        });
+        console.log(response);
+        if (response) {
+          // 处理分页数据结构
+          if (response.records) {
+            this.statisticsList = response.records;
+            this.total = parseInt(response.total) || 0;
+          } else {
+            // 兼容直接返回数组的情况
+            this.statisticsList = Array.isArray(response) ? response : [];
+            this.total = this.statisticsList.length;
+          }
+        }
       } catch (error) {
         console.error("获取统计数据失败:", error);
         this.$message.error("获取统计数据失败");
@@ -417,64 +464,34 @@ export default {
     generateMockData() {
       const mockList = [
         {
-          id: 1,
           deptName: "内科",
-          doctorId: "3000",
-          doctorName: "张三",
-          sex: 1,
-          age: 35,
-          title: "住院医师",
-          projectName: "内镜下胃肠道息肉切除术",
-          completedCases: 2,
-          lastApplyTime: "2025-06-20 17:00:00",
-          applyHistory: [
-            {
-              applyTime: "2025-06-20 17:00:00",
-              status: 0,
-              cases: 2,
-              remarks: "首次申请"
-            }
-          ]
+          createTime: 1719742800000,
+          totalNum: "15",
+          techQualifyCode: "住院医师",
+          count: "1",
+          ids: "1",
+          applicantName: "张三",
+          userId: "3000"
         },
         {
-          id: 2,
           deptName: "内科",
-          doctorId: "1500",
-          doctorName: "李四",
-          sex: 1,
-          age: 42,
-          title: "主治医师",
-          projectName: "内镜下胃肠道息肉切除术",
-          completedCases: 0,
-          lastApplyTime: "2025-06-20 12:00:00",
-          applyHistory: [
-            {
-              applyTime: "2025-06-20 12:00:00",
-              status: 2,
-              cases: 0,
-              remarks: "经验不足，需要更多培训"
-            }
-          ]
+          createTime: 1719724800000,
+          totalNum: "8",
+          techQualifyCode: "主治医师",
+          count: "1",
+          ids: "2",
+          applicantName: "李四",
+          userId: "1500"
         },
         {
-          id: 3,
           deptName: "内科",
-          doctorId: "4851",
-          doctorName: "王五",
-          sex: 2,
-          age: 38,
-          title: "主治医师",
-          projectName: "内镜下胃肠道息肉切除术",
-          completedCases: 6,
-          lastApplyTime: "2025-06-20 12:00:00",
-          applyHistory: [
-            {
-              applyTime: "2025-06-20 12:00:00",
-              status: 1,
-              cases: 6,
-              remarks: "申请通过"
-            }
-          ]
+          createTime: 1719724800000,
+          totalNum: "22",
+          techQualifyCode: "主治医师",
+          count: "1",
+          ids: "3",
+          applicantName: "王五",
+          userId: "4851"
         }
       ];
 
@@ -548,9 +565,26 @@ export default {
      * 查看详情
      * @param {Object} row 行数据
      */
-    viewDetails(row) {
-      this.selectedRecord = { ...row };
-      this.detailDialogVisible = true;
+    async viewDetails(row) {
+      try {
+        this.loading = true;
+        const response = await getStatisticsDetail(row.id);
+
+        if (response) {
+          this.selectedRecord = response;
+        } else {
+          this.$message.error("获取详情数据失败");
+          return;
+        }
+
+        this.detailDialogVisible = true;
+      } catch (error) {
+        console.error("获取详情数据失败:", error);
+        this.$message.error("获取详情数据失败");
+        return;
+      } finally {
+        this.loading = false;
+      }
     },
 
     /**
@@ -564,19 +598,47 @@ export default {
     /**
      * 导出数据
      */
-    exportData() {
-      this.$message.info("导出功能开发中...");
+    async exportData() {
+      try {
+        this.loading = true;
+        this.$message.info("正在导出数据，请稍候...");
+
+        const response = await exportStatisticsExcel({
+          pageNum: this.queryParams.pageNum,
+          pageSize: this.queryParams.pageSize,
+          doctorId: this.queryParams.doctorId,
+          deptId: this.queryParams.deptId
+        });
+
+        if (response) {
+          // 使用download插件下载文件
+          const fileName = `高风险诊疗技术统计_${parseTime(
+            new Date(),
+            "{y}{m}{d}_{h}{i}{s}"
+          )}.xlsx`;
+          download.excel(response, fileName);
+          this.$message.success("导出成功");
+        } else {
+          this.$message.error("导出失败");
+        }
+      } catch (error) {
+        console.error("导出数据失败:", error);
+        this.$message.error("导出数据失败");
+      } finally {
+        this.loading = false;
+      }
     },
 
     /**
      * 获取完成例数的样式类
-     * @param {number} cases 完成例数
+     * @param {number|string} cases 完成例数
      * @returns {string} CSS类名
      */
     getCompletedCasesClass(cases) {
-      if (cases >= 15) {
+      const caseNum = parseInt(cases) || 0;
+      if (caseNum >= 15) {
         return "text-success";
-      } else if (cases >= 10) {
+      } else if (caseNum >= 10) {
         return "text-warning";
       } else {
         return "text-danger";
@@ -684,6 +746,113 @@ export default {
           remark: ""
         }
       ];
+    },
+
+    /**
+     * 获取申请人信息
+     * @returns {Object} 申请人信息对象
+     */
+    getPersonInfo() {
+      return this.selectedRecord?.personInfo || {};
+    },
+
+    /**
+     * 获取项目列表
+     * @returns {Array} 项目列表数组
+     */
+    getProjectList() {
+      return this.selectedRecord?.projectList || [];
+    },
+
+    /**
+     * 获取审批记录列表
+     * @returns {Array} 审批记录数组
+     */
+    getApprovalOpList() {
+      return this.selectedRecord?.approvalOpList || [];
+    },
+
+    /**
+     * 根据申请ID获取项目名称
+     * @param {string} applyId 申请ID
+     * @returns {string} 项目名称
+     */
+    getProjectNameByApplyId(applyId) {
+      const project = this.getProjectList().find(p => p.id === applyId);
+      return project?.applyName || "未知项目";
+    },
+
+    /**
+     * 计算年龄
+     * @param {string} birthDate 出生日期
+     * @returns {number} 年龄
+     */
+    calculateAge(birthDate) {
+      if (!birthDate) return "";
+      const birth = new Date(birthDate);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const monthDiff = today.getMonth() - birth.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birth.getDate())
+      ) {
+        age--;
+      }
+      return age;
+    },
+
+    /**
+     * 格式化日期
+     * @param {string} dateStr 日期字符串
+     * @returns {string} 格式化后的日期
+     */
+    formatDate(dateStr) {
+      if (!dateStr) return "";
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}年${date.getMonth() + 1}月`;
+    },
+
+    /**
+     * 格式化日期时间
+     * @param {string|number} dateTime 日期时间
+     * @returns {string} 格式化后的日期时间
+     */
+    formatDateTime(dateTime) {
+      if (!dateTime) return "";
+      const date = new Date(typeof dateTime === "number" ? dateTime : dateTime);
+      return parseTime(date, "{y}-{m}-{d} {h}:{i}:{s}");
+    },
+
+    /**
+     * 获取总完成例数
+     * @returns {number} 总完成例数
+     */
+    getTotalCompletedCases() {
+      const projects = this.getProjectList();
+      return projects.reduce((total, project) => {
+        return total + (parseInt(project.applyNum) || 0);
+      }, 0);
+    },
+
+    /**
+     * 根据项目ID获取审批通过日期
+     * @param {string} projectId 项目ID
+     * @returns {string} 审批通过日期
+     */
+    getApprovalDate(projectId) {
+      const approvalList = this.getApprovalOpList();
+      for (const approval of approvalList) {
+        if (approval[0]?.applyId === projectId) {
+          const passedStep = approval.find(
+            step => step.status === "通过" || step.status === "已通过"
+          );
+          if (passedStep) {
+            return this.formatDateTime(passedStep.createTime);
+          }
+        }
+      }
+      return "";
     }
   }
 };
@@ -988,7 +1157,7 @@ export default {
   color: #909399;
   z-index: 1000;
   padding: 5px;
-  
+
   &:hover {
     color: #606266;
   }

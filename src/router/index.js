@@ -473,6 +473,13 @@ export const constantRoutes = [
         component: () =>
           import("@/views/myQualifications/highrisk/statistics/index"),
         meta: { title: "高风险诊疗技术统计", icon: "高风险诊疗技术统计" }
+      },
+      {
+        path: "operSafeguardApplication",
+        name: "手术基础包申请列表",
+        component: () =>
+          import("@/views/myQualifications/operSafeguardApplication/index"),
+        meta: { title: "手术基础包申请列表", icon: "手术基础包申请列表" }
       }
     ]
   },

@@ -7,7 +7,7 @@ import { blobValidate } from "@/utils/ehr";
 
 const baseURL = process.env.VUE_APP_BASE_API
 
-export default {
+export const download = {
   name(name, isDelete = true) {
     var url = baseURL + "/common/download?fileName=" + encodeURI(name) + "&delete=" + isDelete
     axios({
@@ -58,6 +58,12 @@ export default {
         this.printErrMsg(res.data);
       }
     })
+  },
+  excel(data, filename) {
+    const blob = new Blob([data], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    saveAs(blob, filename);
   },
   saveAs(text, name, opts) {
     saveAs(text, name, opts);
