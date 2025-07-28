@@ -97,7 +97,7 @@ export const constantRoutes = [
         meta: { title: "SKU管理", icon: "SKU管理" }
       },
       {
-        path: "sku",
+        path: "specification",
         name: "商品规格",
         component: () => import("@/views/product/sku/index"),
         meta: { title: "商品规格", icon: "商品规格" }
@@ -289,102 +289,112 @@ export const constantRoutes = [
     name: "资质审核",
     component: Layout,
     children: [
-        {
-            path: "qualificationLog",
-            name: "资质审核日志",
-            component: () => import("@/views/auditing/qualificationLog/index"),
-            meta: { title: "资质审核日志", icon: "资质审核日志" }
-          },
-          {
-            path: "qualificationReview",
-            name: "资质审核",
-            component: () => import("@/views/auditing/qualificationReview/index"),
-            meta: { title: "资质审核", icon: "资质审核" }
-          },
-          {
-             path: "qualification-detail",
-             component: () => import("@/views/auditing/qualificationReview/detail"),
-             name: "资质审核详情",
-             meta: { title: "资质审核详情", icon: "资质审核详情" }
-          },
-          {
-            path: "qualificationBatches",
-            name: "批量设置资质",
-            component: () => import("@/views/auditing/qualificationBatches/index"),
-            meta: { title: "批量设置资质", icon: "批量设置资质" }
-          },
-          {
-            path: "employeeQualifications",
-            name: "批量设置资质",
-            component: () => import("@/views/auditing/employeeQualifications/index"),
-            meta: { title: "批量设置资质", icon: "批量设置资质" }
-          },
-          {
-            path: "employeesAualifications",
-            name: "员工与资质",
-            component: () => import("@/views/auditing/employeesAualifications/index"),
-            meta: { title: "员工与资质", icon: "员工与资质" }
-          },
-          {
-            path: "qualificationSetSurgery",
-            name: "手术要求资质设置",
-            component: () => import("@/views/auditing/qualificationSetSurgery/index"),
-            meta: { title: "手术要求资质设置", icon: "手术要求资质设置" }
-          },
-          {
-            path: "operPermissionLog",
-            name: "手术权限操作日志",
-            component: () => import("@/views/auditing/operPermissionLog/index"),
-            meta: { title: "手术权限操作日志", icon: "手术权限操作日志" }
-          },
-          {
-            path: "operSafeguard",
-            name: "手术基础包列表与维护",
-            component: () => import("@/views/auditing/operSafeguard/index"),
-            meta: { title: "手术基础包列表与维护", icon: "手术基础包列表与维护" }
-          },
-          {
-            path: "doctorsPermissions",
-            name: "医生临床权限列表",
-            component: () => import("@/views/auditing/doctorsPermissions/index"),
-            meta: { title: "医生临床权限列表", icon: "医生临床权限列表" }
-          },
-          {
-            path: "auditAuthorization",
-            name: "手术权限审核授权",
-            component: () => import("@/views/auditing/auditAuthorization/index"),
-            meta: { title: "手术权限审核授权", icon: "手术权限审核授权" }
-          },{
-            path: "auditAuthorization/details",
-            name: "手术权限审核详情",
-            component: () => import("@/views/auditing/auditAuthorization/details"),
-            meta: { title: "手术权限审核授权", icon: "手术权限审核授权" }
-          },{
-            path: "rating/review",
-            name: "手术级别考核授权",
-            component: () => import("@/views/auditing/rating/review/index"),
-            meta: { title: "手术级别考核授权", icon: "手术级别考核授权" }
-          },{
-            path: "rating/review/detail",
-            name: "手术级别考核详情",
-            component: () => import("@/views/auditing/rating/review/detail"),
-            meta: { title: "手术级别考核详情", icon: "手术级别考核授权" }
-          },{
-            path: "highrisk/audit",
-            name: "高风险诊疗技术审核",
-            component: () => import("@/views/auditing/highrisk/audit/index"),
-            meta: { title: "高风险诊疗技术审核", icon: "高风险诊疗技术审核" }
-          },{
-              path: "highrisk/audit/detail",
-              name: "高风险诊疗技术审核详情",
-              component: () => import("@/views/auditing/highrisk/audit/detail"),
-              meta: { title: "高风险诊疗技术审核详情", icon: "高风险诊疗技术审核" }
-            },{
-              path: "rating/audit",
-              name: "手术级别审核授权",
-              component: () => import("@/views/auditing/rating/audit/index"),
-              meta: { title: "手术级别审核授权", icon: "手术级别审核授权" }
-            },{
+      {
+        path: "qualificationLog",
+        name: "资质审核日志",
+        component: () => import("@/views/auditing/qualificationLog/index"),
+        meta: { title: "资质审核日志", icon: "资质审核日志" }
+      },
+      {
+        path: "qualificationReview",
+        name: "资质审核",
+        component: () => import("@/views/auditing/qualificationReview/index"),
+        meta: { title: "资质审核", icon: "资质审核" }
+      },
+      {
+        path: "qualification-detail",
+        component: () => import("@/views/auditing/qualificationReview/detail"),
+        name: "资质审核详情",
+        meta: { title: "资质审核详情", icon: "资质审核详情" }
+      },
+      {
+        path: "qualificationBatches",
+        name: "批量设置资质",
+        component: () => import("@/views/auditing/qualificationBatches/index"),
+        meta: { title: "批量设置资质", icon: "批量设置资质" }
+      },
+      {
+        path: "employeeQualifications",
+        name: "批量设置资质",
+        component: () =>
+          import("@/views/auditing/employeeQualifications/index"),
+        meta: { title: "批量设置资质", icon: "批量设置资质" }
+      },
+      {
+        path: "employeesAualifications",
+        name: "员工与资质",
+        component: () =>
+          import("@/views/auditing/employeesAualifications/index"),
+        meta: { title: "员工与资质", icon: "员工与资质" }
+      },
+      {
+        path: "qualificationSetSurgery",
+        name: "手术要求资质设置",
+        component: () =>
+          import("@/views/auditing/qualificationSetSurgery/index"),
+        meta: { title: "手术要求资质设置", icon: "手术要求资质设置" }
+      },
+      {
+        path: "operPermissionLog",
+        name: "手术权限操作日志",
+        component: () => import("@/views/auditing/operPermissionLog/index"),
+        meta: { title: "手术权限操作日志", icon: "手术权限操作日志" }
+      },
+      {
+        path: "operSafeguard",
+        name: "手术基础包列表与维护",
+        component: () => import("@/views/auditing/operSafeguard/index"),
+        meta: { title: "手术基础包列表与维护", icon: "手术基础包列表与维护" }
+      },
+      {
+        path: "doctorsPermissions",
+        name: "医生临床权限列表",
+        component: () => import("@/views/auditing/doctorsPermissions/index"),
+        meta: { title: "医生临床权限列表", icon: "医生临床权限列表" }
+      },
+      {
+        path: "auditAuthorization",
+        name: "手术权限审核授权",
+        component: () => import("@/views/auditing/auditAuthorization/index"),
+        meta: { title: "手术权限审核授权", icon: "手术权限审核授权" }
+      },
+      {
+        path: "auditAuthorization/details",
+        name: "手术权限审核详情",
+        component: () => import("@/views/auditing/auditAuthorization/details"),
+        meta: { title: "手术权限审核授权", icon: "手术权限审核授权" }
+      },
+      {
+        path: "rating/review",
+        name: "手术级别考核授权",
+        component: () => import("@/views/auditing/rating/review/index"),
+        meta: { title: "手术级别考核授权", icon: "手术级别考核授权" }
+      },
+      {
+        path: "rating/review/detail",
+        name: "手术级别考核详情",
+        component: () => import("@/views/auditing/rating/review/detail"),
+        meta: { title: "手术级别考核详情", icon: "手术级别考核授权" }
+      },
+      {
+        path: "highrisk/audit",
+        name: "高风险诊疗技术审核",
+        component: () => import("@/views/auditing/highrisk/audit/index"),
+        meta: { title: "高风险诊疗技术审核", icon: "高风险诊疗技术审核" }
+      },
+      {
+        path: "highrisk/audit/detail",
+        name: "高风险诊疗技术审核详情",
+        component: () => import("@/views/auditing/highrisk/audit/detail"),
+        meta: { title: "高风险诊疗技术审核详情", icon: "高风险诊疗技术审核" }
+      },
+      {
+        path: "rating/audit",
+        name: "手术级别审核授权",
+        component: () => import("@/views/auditing/rating/audit/index"),
+        meta: { title: "手术级别审核授权", icon: "手术级别审核授权" }
+      },
+      {
         path: "rating/audit/detail",
         name: "手术级别审核详情",
         component: () => import("@/views/auditing/rating/audit/detail"),
@@ -399,26 +409,29 @@ export const constantRoutes = [
       {
         path: "myQualifications",
         name: "我的资质",
-        component: () => import("@/views/myQualifications/myQualifications/index"),
+        component: () =>
+          import("@/views/myQualifications/myQualifications/index"),
         meta: { title: "我的资质", icon: "我的资质" }
       },
       {
-
         path: "educationTraining",
         name: "教育培训",
-        component: () => import("@/views/myQualifications/educationTraining/index"),
+        component: () =>
+          import("@/views/myQualifications/educationTraining/index"),
         meta: { title: "教育培训", icon: "教育培训" }
       },
       {
         path: "operApplication",
         name: "手术权限申请",
-        component: () => import("@/views/myQualifications/operApplication/index"),
+        component: () =>
+          import("@/views/myQualifications/operApplication/index"),
         meta: { title: "手术权限申请", icon: "手术权限申请" }
       },
       {
         path: "operApplication-details",
         name: "手术权限申请",
-        component: () => import("@/views/myQualifications/operApplication/details"),
+        component: () =>
+          import("@/views/myQualifications/operApplication/details"),
         meta: { title: "手术权限申请", icon: "手术权限申请" }
       },
       {
@@ -426,26 +439,40 @@ export const constantRoutes = [
         name: "手术权限查询",
         component: () => import("@/views/myQualifications/operInquiry/index"),
         meta: { title: "手术权限查询", icon: "手术权限查询" }
-      },{
+      },
+      {
         path: "rating/manage",
         name: "手术级别申请",
         component: () => import("@/views/myQualifications/rating/manage/index"),
         meta: { title: "手术级别申请", icon: "手术级别申请" }
-      },{
+      },
+      {
         path: "rating/details",
         name: "手术级别申请",
-        component: () => import("@/views/myQualifications/rating/manage/details"),
+        component: () =>
+          import("@/views/myQualifications/rating/manage/details"),
         meta: { title: "手术级别申请", icon: "手术级别申请" }
-      },{
+      },
+      {
         path: "highrisk/manage",
         name: "高风险诊疗技术申请",
-        component: () => import("@/views/myQualifications/highrisk/manage/index"),
+        component: () =>
+          import("@/views/myQualifications/highrisk/manage/index"),
         meta: { title: "高风险诊疗技术申请", icon: "高风险诊疗技术申请" }
-      },{
+      },
+      {
         path: "highrisk/details",
         name: "高风险诊疗技术申请",
-        component: () => import("@/views/myQualifications/highrisk/manage/details"),
+        component: () =>
+          import("@/views/myQualifications/highrisk/manage/details"),
         meta: { title: "高风险诊疗技术申请", icon: "高风险诊疗技术申请" }
+      },
+      {
+        path: "highrisk/statistics",
+        name: "高风险诊疗技术统计",
+        component: () =>
+          import("@/views/myQualifications/highrisk/statistics/index"),
+        meta: { title: "高风险诊疗技术统计", icon: "高风险诊疗技术统计" }
       }
     ]
   },

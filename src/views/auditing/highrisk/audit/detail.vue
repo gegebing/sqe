@@ -87,7 +87,7 @@
                     </el-row>
                   </el-row>
                 </div>
-                <div class="information-part-title">
+                <!-- <div class="information-part-title">
                   <div class="line"></div>
                   <div class="title">历史操作明细</div>
                 </div>
@@ -111,7 +111,7 @@
                     <el-input v-model="applyForm.qtDescribe" :disabled="true" type="textarea" maxlength="2000"
                               show-word-limit :rows="5" placeholder="请输入其它需要说明"></el-input>
                   </div>
-                </div>
+                </div> -->
 
                 <div class="information-part-title">
                   <div class="line"></div>
