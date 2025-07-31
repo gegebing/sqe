@@ -10,9 +10,9 @@
       label-position="left"
       label-width="80px"
     >
-      <el-form-item label="包名" prop="packageName">
+      <el-form-item label="包名" prop="name">
         <el-input
-          v-model="queryParams.packageName"
+          v-model="queryParams.name"
           placeholder="请输入包名"
           clearable
           @keyup.enter.native="handleQuery"
@@ -58,26 +58,27 @@
       <el-table-column
         label="包名"
         align="center"
-        prop="packageName"
+        prop="name"
         min-width="200"
       />
       <el-table-column
         label="手术数量"
         align="center"
-        prop="operationCount"
+        prop="operCnt"
         width="120"
       />
       <el-table-column
         label="是否需要指导医生"
         align="center"
-        prop="needGuide"
+        prop="directFlag"
         width="150"
       >
         <template slot-scope="scope">
-          {{ scope.row.needGuide ? "是" : "否" }}
+          {{ scope.row.directFlag ? "是" : "否" }}
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" width="120" />
+      <el-table-column label="状态" align="center" prop="statusTxt" width="120">
+      </el-table-column>
       <el-table-column label="操作" align="center" width="300" fixed="right">
         <template slot-scope="scope">
           <el-button size="mini" type="text" @click="handleApplyAuth(scope.row)"
@@ -150,19 +151,23 @@
                 <table class="info-table">
                   <tr>
                     <td class="table-title">姓名</td>
-                    <td class="table-value">张三</td>
+                    <td class="table-value">{{ currentApplication.applicantName || "-" }}</td>
                     <td class="table-title">工号</td>
-                    <td class="table-value">3803</td>
+                    <td class="table-value">{{ currentApplication.applicantId || "-" }}</td>
                     <td class="table-title">职称</td>
-                    <td class="table-value">住院医师</td>
+                    <td class="table-value">{{ currentApplication.title || "-" }}</td>
                     <td class="table-title">申请日期</td>
-                    <td class="table-value">2025-06-20</td>
+                    <td class="table-value">{{ parseTime(currentApplication.createTime) || "-" }}</td>
                   </tr>
                   <tr>
                     <td class="table-title">科室</td>
-                    <td class="table-value">骨科</td>
+                    <td class="table-value">
+                      {{ currentApplication.deptName || "-" }}
+                    </td>
                     <td class="table-title">申请编号</td>
-                    <td class="table-value">GK380320250720029</td>
+                    <td class="table-value">
+                      {{ currentApplication.id || "-" }}
+                    </td>
                     <td class="table-title"></td>
                     <td class="table-value"></td>
                     <td class="table-title"></td>
@@ -179,11 +184,17 @@
                 <table class="info-table" style="margin-bottom: 20px;">
                   <tr>
                     <td class="table-title">手术基础包名称</td>
-                    <td class="table-value">骨科手术包</td>
+                    <td class="table-value">
+                      {{ currentApplication.name || "-" }}
+                    </td>
                     <td class="table-title">是否需要指导医生</td>
-                    <td class="table-value">否</td>
+                    <td class="table-value">
+                      {{ currentApplication.directFlag ? "是" : "否" }}
+                    </td>
                     <td class="table-title">手术数量</td>
-                    <td class="table-value">14</td>
+                    <td class="table-value">
+                      {{ currentApplication.operCnt || 0 }}
+                    </td>
                   </tr>
                 </table>
 
@@ -199,13 +210,14 @@
                     </thead>
                     <tbody>
                       <tr
-                        v-for="(operation, index) in mockOperationList"
+                        v-for="(operation,
+                        index) in currentApplication.operList || []"
                         :key="index"
                       >
-                        <td>{{ operation.code }}</td>
-                        <td>{{ operation.name }}</td>
-                        <td>{{ operation.level }}</td>
-                        <td>{{ operation.type }}</td>
+                        <td>{{ operation.code || "-" }}</td>
+                        <td>{{ operation.name || "-" }}</td>
+                        <td>{{ operation.level || "-" }}</td>
+                        <td>{{ operation.tag || "-" }}</td>
                       </tr>
                     </tbody>
                   </table>
@@ -258,9 +270,12 @@
 </template>
 
 <script>
+import { operPkgPageApply, operPkgApply } from "@/api/operPkg/index";
+import { employeeDetail } from "@/api/system/qualificationReview";
 import Pagination from "@/components/Pagination";
 import RightToolbar from "@/components/RightToolbar";
 import { parseTime } from "@/utils";
+import { getUserInfo } from "@/utils/persistence";
 
 /**
  * 手术基础包申请列表组件
@@ -287,7 +302,7 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        packageName: "",
+        name: "",
         status: ""
       },
       // 对话框显示状态
@@ -297,82 +312,20 @@ export default {
       currentApplication: {},
       // 申请授权表单
       applyAuthForm: {
-        remark: ""
+        remark: "",
+        operIds: []
       },
-      // 模拟手术列表数据
-      mockOperationList: [
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "手术"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "操作"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        {
-          code: "XX.XXXX",
-          name: "xxxxxxxxxxxxxxxx",
-          level: "X级",
-          type: "XXX"
-        },
-        { code: "XX.XXXX", name: "xxxxxxxxxxxxxxxx", level: "X级", type: "XXX" }
-      ]
+      // 选中的手术操作
+      selectedOperations: [],
+      // 当前用户信息
+      currentUserInfo: {},
+      // 用户详细信息
+      userDetail: {}
     };
   },
   created() {
     this.getList();
+    this.getCurrentUserDetail();
   },
   methods: {
     /**
@@ -392,102 +345,20 @@ export default {
     /**
      * 获取申请列表
      */
-    async getList() {
+    getList() {
       this.loading = true;
-      try {
-        // 这里应该调用实际的申请列表API
-        // const response = await getApplicationList(this.queryParams);
-        // 暂时使用模拟数据
-        const mockData = this.generateMockData();
-        this.applicationList = mockData.list;
-        this.total = mockData.total;
-      } catch (error) {
-        console.error("获取申请列表失败:", error);
-        this.$message.error("获取申请列表失败");
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    /**
-     * 生成模拟数据
-     * @returns {Object} 包含列表和总数的对象
-     */
-    generateMockData() {
-      const mockList = [
-        {
-          id: "1",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "未授权"
-        },
-        {
-          id: "2",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "科室待审批"
-        },
-        {
-          id: "3",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "医务处待审批"
-        },
-        {
-          id: "4",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "口腔科"
-        },
-        {
-          id: "5",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "胸外不通过"
-        },
-        {
-          id: "6",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "急诊科"
-        },
-        {
-          id: "7",
-          packageName: "住院医生手术权限包",
-          operationCount: 4,
-          needGuide: true,
-          status: "康复中心"
-        }
-      ];
-
-      // 根据查询条件过滤数据
-      let filteredList = mockList;
-      if (this.queryParams.packageName) {
-        filteredList = filteredList.filter(item =>
-          item.packageName.includes(this.queryParams.packageName)
-        );
-      }
-      if (this.queryParams.status) {
-        filteredList = filteredList.filter(item =>
-          item.status.includes(this.queryParams.status)
-        );
-      }
-
-      // 分页处理
-      const start = (this.queryParams.pageNum - 1) * this.queryParams.pageSize;
-      const end = start + this.queryParams.pageSize;
-      const paginatedList = filteredList.slice(start, end);
-
-      return {
-        list: paginatedList,
-        total: filteredList.length
-      };
+      operPkgPageApply(this.queryParams)
+        .then(res => {
+          console.log(res);
+          this.applicationList = res.body.list || [];
+          this.total = res.body.total || 0;
+          this.loading = false;
+        })
+        .catch(error => {
+          console.error("获取列表数据失败:", error);
+          this.$message.error("获取列表数据失败");
+          this.loading = false;
+        });
     },
 
     /**
@@ -506,10 +377,25 @@ export default {
       this.queryParams = {
         pageNum: 1,
         pageSize: 10,
-        packageName: "",
+        name: "",
         status: ""
       };
       this.getList();
+    },
+
+    /**
+     * 获取当前用户详细信息
+     */
+    async getCurrentUserDetail() {
+      try {
+        this.currentUserInfo = getUserInfo();
+        if (this.currentUserInfo.acc) {
+          const res = await employeeDetail({ key: this.currentUserInfo.acc });
+          this.userDetail = res.body || {};
+        }
+      } catch (error) {
+        console.error("获取用户信息失败:", error);
+      }
     },
 
     /**
@@ -517,8 +403,20 @@ export default {
      * @param {Object} row 行数据
      */
     handleApplyAuth(row) {
-      this.currentApplication = { ...row };
+      // 合并行数据和用户信息
+      this.currentApplication = {
+        ...row,
+        applicantName: this.userDetail.name || this.currentUserInfo.username || "-",
+        applicantId: this.userDetail.empNo || this.currentUserInfo.acc || "-",
+        title: this.userDetail.techQualifyCode || "-"
+      };
       this.applyAuthForm.remark = "";
+      this.applyAuthForm.operIds = [];
+      this.selectedOperations = [];
+      // 默认选中当前包的ID
+      if (row.id) {
+        this.applyAuthForm.operIds = [row.id];
+      }
       this.applyAuthDialogVisible = true;
     },
 
@@ -548,26 +446,49 @@ export default {
       this.applyAuthDialogVisible = false;
       this.currentApplication = {};
       this.applyAuthForm.remark = "";
+      this.applyAuthForm.operIds = [];
+      this.selectedOperations = [];
     },
 
     /**
      * 提交申请授权
      */
     submitApplyAuth() {
+      // 验证必填项
+      if (!this.applyAuthForm.remark.trim()) {
+        this.$message.warning("请填写备注信息");
+        return;
+      }
+      
+      if (!this.applyAuthForm.operIds.length) {
+        this.$message.warning("请选择要申请的操作");
+        return;
+      }
+
       this.$confirm("确认提交申请授权吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          // 这里应该调用提交申请授权API
-          // submitApplyAuthorization({
-          //   packageId: this.currentApplication.id,
-          //   remark: this.applyAuthForm.remark
-          // })
-          this.$message.success("申请授权提交成功");
-          this.applyAuthDialogVisible = false;
-          this.getList();
+          const submitData = {
+            remark: this.applyAuthForm.remark,
+            operIds: this.applyAuthForm.operIds
+          };
+          
+          console.log("提交申请数据:", submitData);
+          
+          // 调用提交申请授权API
+          operPkgApply(submitData)
+            .then(res => {
+              this.$message.success("申请授权提交成功");
+              this.applyAuthDialogVisible = false;
+              this.getList();
+            })
+            .catch(error => {
+              console.error("提交申请失败:", error);
+              this.$message.error("提交申请失败，请稍后重试");
+            });
         })
         .catch(() => {});
     },

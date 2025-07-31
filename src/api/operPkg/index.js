@@ -72,3 +72,66 @@ export function operPkgBatchUpload(data) {
     data: data
   });
 }
+
+// 分页查询申请列表
+export function operPkgPageApply(data) {
+  return request({
+    url: "/api/1.0/operPkg/pageApply",
+    method: "post",
+    data: data
+  });
+}
+
+// 申请手术基础包授权
+export function operPkgApply(data) {
+  return request({
+    url: "/api/1.0/operPkg/apply",
+    method: "post",
+    data: data
+  });
+}
+
+// 获取手术基础包申请详情
+export function getOperPkgApplyDetail(id) {
+  return request({
+    url: "/api/1.0/operPkg/applyDetail",
+    method: "post",
+    data: { id }
+  });
+}
+
+// 审批手术基础包申请
+export function operPkgApprove(data) {
+  return request({
+    url: "/api/1.0/operPkg/approve",
+    method: "post",
+    data: data
+  });
+}
+
+// 获取手术基础包申请状态统计
+export function getOperPkgApplyStateNum(data) {
+  return request({
+    url: "/api/1.0/operPkg/applyStateNum",
+    method: "post",
+    data: data
+  });
+}
+
+// 获取手术基础包审批人员列表
+export function operPkgAuthEmployee(applyId) {
+  return request({
+    url: "/api/1.0/operPkg/authEmployee",
+    method: "post",
+    data: { applyId }
+  });
+}
+
+// 分页查询手术基础包审核列表
+export function operPkgPageAudit(data) {
+  return request({
+    url: "/api/1.0/operPkg/pageAudit",
+    method: "post",
+    data: data
+  });
+}

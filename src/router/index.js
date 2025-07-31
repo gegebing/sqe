@@ -397,8 +397,16 @@ export const constantRoutes = [
       {
         path: "rating/audit/detail",
         name: "手术级别审核详情",
-        component: () => import("@/views/auditing/rating/audit/detail"),
+        component: () =>
+          import("@/views/auditing/rating/audit/detail"),
         meta: { title: "手术级别审核授权", icon: "手术级别审核授权" }
+      },
+      {
+        path: "operPkgAudit",
+        name: "手术基础包审核授权",
+        component: () =>
+          import("@/views/auditing/operPkgAudit/index"),
+        meta: { title: "手术基础包审核授权", icon: "手术基础包审核授权" }
       }
     ]
   },
